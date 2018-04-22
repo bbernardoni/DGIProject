@@ -60,8 +60,9 @@ void main(){
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
 	
-	vec3 d = fwidth(vBC);
-    vec3 a3 = smoothstep(vec3(0.0), d*1.5, vBC);
-    float edgeFactor = min(min(a3.x, a3.y), a3.z);
-	color = vec4(MaterialDiffuseColor,(1.0-edgeFactor)*0.95);
+	vec3 d = vBC/fwidth(vBC);
+    //float minD = min(min(d.x, d.y), d.z);
+	vec3 asdf = clamp(0.8 - d/2.0, 0, 0.8);
+    float edgeFactor = asdf.x + asdf.y + asdf.z;//clamp(minD/3.0, 0, 1);
+	color = vec4(MaterialDiffuseColor, edgeFactor);
 }

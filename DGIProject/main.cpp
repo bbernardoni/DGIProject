@@ -20,8 +20,8 @@ using glm::mat4;
 using std::vector;
 
 // constants
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 768;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
 const float fov = glm::radians(45.0f);
 const float transSpeed = 0.003f;
@@ -119,7 +119,7 @@ bool init(){
 
 bool initGL(){
 	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
