@@ -9,10 +9,8 @@
 #include <SDL_opengl.h>
 
 #include "shader.h"
+#include "object.h"
 #include "logging.h"
-#include "texture.h"
-#include "objloader.h"
-#include "vboindexer.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -38,16 +36,9 @@ SDL_Window* gWindow = NULL;
 SDL_GLContext gContext;
 
 Shader* shader = NULL;
+Object* monkey = NULL;
 
 //Graphics variables
-GLuint vertexbuffer;
-GLuint elementbuffer;
-GLuint VertexArrayID;
-GLuint Texture;
-
-vector<unsigned short> indices;
-vector<Vertex> indexed_vertices;
-
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
 
@@ -119,37 +110,10 @@ void init(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
 	// Create and compile our GLSL program from the shaders
 	shader = new Shader("StandardShading.vert", "StandardShading.geom", "StandardShading.frag");
 
-	// Load the texture
-	Texture = loadDDS("uvmap.DDS");
-
-	// Read our .obj file
-	vector<Vertex> vertices;
-	bool res = loadOBJ("suzanne.obj", vertices);
-	indexVBO(vertices, indices, indexed_vertices);
-
-	// Load it into a VBO
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(Vertex), &indexed_vertices[0], GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(5*sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	// Generate a buffer for the indices as well
-	glGenBuffers(1, &elementbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
-
+	monkey = new Object("suzanne.obj", "uvmap.DDS");
 
 	SDL_WarpMouseInWindow(gWindow, SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 }
@@ -194,36 +158,14 @@ void render(){
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Use our shader
-	shader->use();
+	mat4 VP = ProjectionMatrix * ViewMatrix;
 
-	// Compute the MVP matrix from keyboard and mouse input
-	mat4 ModelMatrix = mat4(1.0);
-	mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
-	// Send our transformation to the currently bound shader, 
-	// in the "MVP" uniform
-	shader->setUniform("MVP", MVP);
-
-	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	shader->setUniform("myTextureSampler", 0);
-
-	glBindVertexArray(VertexArrayID);
-
-	// Draw the triangles !
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+	// draw monkey
+	monkey->use(shader, VP);
 }
 
 void close(){
-	// Cleanup VBO and shader
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &elementbuffer);
-	glDeleteTextures(1, &Texture);
-	glDeleteVertexArrays(1, &VertexArrayID);
-
+	delete monkey;
 	delete shader;
 
 	//Destroy window	
