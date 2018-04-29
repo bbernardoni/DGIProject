@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\..\PortablePrograms\programming\glad-3.3\src\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objloader.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -26,6 +27,7 @@
     <ClCompile Include="vboindexer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="logging.h" />
     <ClInclude Include="objloader.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
@@ -88,8 +90,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\PortablePrograms\programming\glew-2.1.0\include;C:\PortablePrograms\programming\glm-0.9.8.5;C:\PortablePrograms\programming\SDL2-2.0.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\PortablePrograms\programming\glew-2.1.0\lib\Release\Win32;C:\PortablePrograms\programming\SDL2-2.0.8\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\PortablePrograms\programming\glad-3.3\include;C:\PortablePrograms\programming\glm-0.9.8.5;C:\PortablePrograms\programming\SDL2-2.0.8\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\PortablePrograms\programming\SDL2-2.0.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(IncludePath)</IncludePath>
@@ -102,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

@@ -18,12 +18,7 @@
 // - More secure. Change another line and you can inject code.
 // - Loading from memory, stream, etc
 
-bool loadOBJ(
-	const char * path, 
-	std::vector<glm::vec3> & out_vertices, 
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals
-){
+bool loadOBJ(const char * path, std::vector<Vertex> & out_vertices){
 	printf("Loading OBJ file %s...\n", path);
 
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
@@ -31,16 +26,14 @@ bool loadOBJ(
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
 
-
 	FILE * file = fopen(path, "r");
-	if( file == NULL ){
+	if(file == NULL){
 		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
 		getchar();
 		return false;
 	}
 
-	while( 1 ){
-
+	while(true){
 		char lineHeader[128];
 		// read the first word of the line
 		int res = fscanf(file, "%s", lineHeader);
@@ -97,14 +90,13 @@ bool loadOBJ(
 		unsigned int normalIndex = normalIndices[i];
 		
 		// Get the attributes thanks to the index
-		glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
-		glm::vec2 uv = temp_uvs[ uvIndex-1 ];
-		glm::vec3 normal = temp_normals[ normalIndex-1 ];
+		Vertex vert;
+		vert.pos = temp_vertices[ vertexIndex-1 ];
+		vert.uv = temp_uvs[ uvIndex-1 ];
+		vert.norm = temp_normals[ normalIndex-1 ];
 		
 		// Put the attributes in buffers
-		out_vertices.push_back(vertex);
-		out_uvs     .push_back(uv);
-		out_normals .push_back(normal);
+		out_vertices.push_back(vert);
 	
 	}
 	fclose(file);
