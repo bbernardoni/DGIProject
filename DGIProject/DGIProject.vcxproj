@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\PortablePrograms\programming\glad-3.3\src\glad.c" />
+    <ClCompile Include="frameBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="objloader.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="vboindexer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="frameBuffer.h" />
     <ClInclude Include="logging.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="objloader.h" />
@@ -36,6 +38,8 @@
     <ClInclude Include="vboindexer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="blur.frag" />
+    <None Include="blur.vert" />
     <None Include="StandardShading.frag" />
     <None Include="StandardShading.geom" />
     <None Include="StandardShading.vert" />

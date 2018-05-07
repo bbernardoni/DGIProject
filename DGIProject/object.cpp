@@ -34,14 +34,13 @@ Object::Object(const char* objPath, const char* texPath){
 }
 
 Object::~Object(){
-	// Cleanup VBO and shader
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteTextures(1, &texture);
 	glDeleteVertexArrays(1, &VAO);
 }
 
-void Object::use(Shader* shader, mat4 VP){
+void Object::draw(Shader* shader, mat4 VP){
 	shader->use();
 
 	// set MVP matrix

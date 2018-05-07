@@ -35,6 +35,9 @@
     <ClCompile Include="object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="frameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="objloader.h">
@@ -55,6 +58,9 @@
     <ClInclude Include="object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="frameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="StandardShading.frag">
@@ -64,6 +70,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="StandardShading.geom">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="blur.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="blur.vert">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
