@@ -159,8 +159,8 @@ void update(){
 		position -= vec3(camRot[2] * (float)deltaTime * transSpeed);
 
 	// calculate project and view matrix
-	//ProjectionMatrix = glm::perspective(fov, 4.0f / 3.0f, 0.1f, 100.0f);
-	ProjectionMatrix = glm::ortho(-2.0f, 2.0f, -3.0f/2.0f, 3.0f/2.0f, 0.1f, 100.0f);
+	ProjectionMatrix = glm::perspective(fov, 4.0f / 3.0f, 0.1f, 100.0f);
+	//ProjectionMatrix = glm::ortho(-2.0f, 2.0f, -3.0f/2.0f, 3.0f/2.0f, 0.1f, 100.0f);
 	ViewMatrix = glm::translate(glm::inverse(camRot), -position);
 
 	if(keyState[SDL_SCANCODE_ESCAPE])
@@ -202,11 +202,16 @@ void render(){
 
 	mat4 VP = ProjectionMatrix * ViewMatrix;
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	// draw monkey
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//raw->bind();
 	//raw->clear();
+	const Uint8* keyState = SDL_GetKeyboardState(NULL);
+	if(keyState[SDL_SCANCODE_Z])
+		VP[1][3] += 0;
 	monkey->draw(shader, VP);
 
 	// blur bright fragments with two-pass Gaussian Blur 
@@ -242,7 +247,7 @@ void close(){
 	delete pong;
 
 	//Destroy window	
-	SDL_DestroyWindow( gWindow );
+	SDL_DestroyWindow(gWindow);
 	gWindow = NULL;
 
 	//Quit SDL subsystems

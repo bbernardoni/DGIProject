@@ -11,8 +11,26 @@ struct Vertex{
 };
 
 bool loadOBJ(
-	const char * path, 
+	const char * path,
 	std::vector<Vertex> & out_vertices
+);
+
+bool loadVertOBJ(
+	const char * path,
+	std::vector<unsigned short> & out_indices,
+	std::vector<Vertex> & out_vertices
+);
+
+void indexVBO(
+	std::vector<Vertex> & in_vertices,
+
+	std::vector<unsigned short> & out_indices,
+	std::vector<Vertex> & out_vertices
+);
+
+void genTrianglesAdjacency(
+	std::vector<unsigned short> & in_indices,
+	std::vector<unsigned short> & out_indices
 );
 
 #endif

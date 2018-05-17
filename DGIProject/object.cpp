@@ -10,10 +10,14 @@ Object::Object(const char* objPath, const char* texPath){
 	// Read our .obj file
 	vector<Vertex> vertices;
 	vector<unsigned short> indices;
+	vector<unsigned short> adj_indices;
 	vector<Vertex> indexed_vertices;
-	bool res = loadOBJ(objPath, vertices);
-	indexVBO(vertices, indices, indexed_vertices);
-	numVert = indices.size();
+	bool res = loadVertOBJ(objPath, indices, indexed_vertices);
+	//bool res = loadOBJ(objPath, vertices);
+	//indexVBO(vertices, indices, indexed_vertices);
+	genTrianglesAdjacency(indices, adj_indices);
+	//adj_indices = indices;
+	numVert = adj_indices.size();
 
 	// Load it into a VBO
 	glGenBuffers(1, &VBO);
@@ -30,7 +34,7 @@ Object::Object(const char* objPath, const char* texPath){
 	// Generate a buffer for the indices as well
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, adj_indices.size() * sizeof(unsigned short), &adj_indices[0], GL_STATIC_DRAW);
 }
 
 Object::~Object(){
@@ -57,5 +61,5 @@ void Object::draw(Shader* shader, mat4 VP){
 	glBindVertexArray(VAO);
 
 	// Draw the triangles
-	glDrawElements(GL_TRIANGLES, numVert, GL_UNSIGNED_SHORT, (void*)0);
+	glDrawElements(GL_TRIANGLES_ADJACENCY, numVert, GL_UNSIGNED_SHORT, (void*)0);
 }

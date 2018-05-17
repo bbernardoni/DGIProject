@@ -2,11 +2,11 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 
 #include "shader.h"
 #include "texture.h"
 #include "objloader.h"
-#include "vboindexer.h"
 
 using std::vector;
 using glm::mat4;
