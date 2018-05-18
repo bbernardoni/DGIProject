@@ -115,7 +115,7 @@ void init(){
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -123,7 +123,7 @@ void init(){
 	shader = new Shader("StandardShading.vert", "StandardShading.geom", "StandardShading.frag");
 	shaderBlur = new Shader("blur.vert", "blur.frag");
 
-	monkey = new Object("suzanne.obj", "uvmap.DDS");
+	monkey = new Object("dummy_obj.obj", "uvmap.DDS");
 
 	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, true);
 	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, false);

@@ -1,6 +1,8 @@
 #ifndef OBJLOADER_H
 #define OBJLOADER_H
 
+#include <glm/gtc/random.hpp>
+
 struct Vertex{
 	glm::vec3 pos;
 	glm::vec2 uv;

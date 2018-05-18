@@ -48,7 +48,9 @@ void Object::draw(Shader* shader, mat4 VP){
 	shader->use();
 
 	// set MVP matrix
-	mat4 ModelMatrix = mat4(1.0);
+	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -88.0f, 0.0f));
+	mat4 scale = glm::scale(mat4(1.0f), vec3(1/100.0f));
+	mat4 ModelMatrix = scale * translate;
 	mat4 MVP = VP * ModelMatrix;
 	shader->setUniform("MVP", MVP);
 

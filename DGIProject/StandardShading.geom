@@ -3,13 +3,6 @@
 layout(triangles_adjacency) in;
 layout(triangle_strip, max_vertices=12) out;
 
-vec3 coords[3] = vec3[](vec3(1,0,0),vec3(0,1,0),vec3(0,0,1));
-
-in vec2 vUV[6];
- 
-out vec2 fUV;
-out vec3 vBC;
-
 void EmitEdge(vec4 P0, vec4 P1){
 	vec2 lineScreenForward = normalize(P1.xy - P0.xy);
     vec2 lineScreenRight = vec2(-lineScreenForward.y, lineScreenForward.x);
@@ -30,8 +23,6 @@ void main(){
 	/*for(int i = 0; i < 3; i++){
 		// copy attributes
 		gl_Position = gl_in[i].gl_Position;
-		fUV = vUV[i];
-		vBC = coords[i];
 
 		// done with the vertex
 		EmitVertex();
@@ -44,8 +35,6 @@ void main(){
     vec4 v3 = gl_in[3].gl_Position;
     vec4 v4 = gl_in[4].gl_Position;
     vec4 v5 = gl_in[5].gl_Position;
-	fUV = vUV[0];
-	vBC = coords[0];
     
     if(IsFront(v0, v2, v4)) {
         if(!IsFront(v0, v1, v2)) EmitEdge(v0, v2);

@@ -18,21 +18,23 @@ bool loadAssImp(const char * path, std::vector<unsigned short> & out_indices, st
 
 	Assimp::Importer importer;
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
-		aiComponent_NORMALS     | 
+		aiComponent_NORMALS     |
 		aiComponent_TANGENTS_AND_BITANGENTS |
-		aiComponent_COLORS      | 
+		aiComponent_COLORS      |
 		aiComponent_TEXCOORDS   |
 		aiComponent_BONEWEIGHTS |
 		aiComponent_ANIMATIONS  |
 		aiComponent_TEXTURES    |
 		aiComponent_LIGHTS      |
 		aiComponent_MATERIALS   |
-		aiComponent_CAMERAS     );
+		aiComponent_CAMERAS);
 
-	const aiScene* scene = importer.ReadFile(path, 
+	const aiScene* scene = importer.ReadFile(path,
 		aiProcess_RemoveComponent      |
 		aiProcess_Triangulate          |
-		aiProcess_JoinIdenticalVertices
+		aiProcess_JoinIdenticalVertices|
+		aiProcess_OptimizeMeshes       |
+		aiProcess_OptimizeGraph
 	);
 
 	if(!scene) {
@@ -254,6 +256,7 @@ void indexVBO(
 	}
 }
 
+int succ=0, fail=0;
 void genTrianglesAdjacency(
 	std::vector<unsigned short> & in_indices,
 	std::vector<unsigned short> & out_indices
@@ -270,9 +273,13 @@ void genTrianglesAdjacency(
 		size_t i1 = (i0+1)%3 + (i0/3)*3;
 		unsigned int he = in_indices[i1]<<16 | in_indices[i0];
 		auto adj = halfEdgeHashtable.find(he);
-		if(adj == halfEdgeHashtable.end())
+		if(adj == halfEdgeHashtable.end()){
 			out_indices.push_back(-1);
-		else
+			fail++;
+		}else{
 			out_indices.push_back(adj->second);
+			succ++;
+		}
 	}
+	succ = succ;
 }
