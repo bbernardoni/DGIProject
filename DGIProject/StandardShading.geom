@@ -9,7 +9,7 @@ in vec2 vUV[6];
  
 out vec2 fUV;
 out vec3 vBC;
- 
+
 void EmitEdge(vec4 P0, vec4 P1){
 	vec2 lineScreenForward = normalize(P1.xy - P0.xy);
     vec2 lineScreenRight = vec2(-lineScreenForward.y, lineScreenForward.x);
@@ -29,13 +29,14 @@ bool IsFront(vec4 A, vec4 B, vec4 C){
 void main(){
 	/*for(int i = 0; i < 3; i++){
 		// copy attributes
-		gl_Position = gl_in[2*i].gl_Position;
-		fUV = vUV[2*i];
-		vBC = coords[2*i];
+		gl_Position = gl_in[i].gl_Position;
+		fUV = vUV[i];
+		vBC = coords[i];
 
 		// done with the vertex
 		EmitVertex();
-	}*/
+	}
+	EndPrimitive();*/
 
 	vec4 v0 = gl_in[0].gl_Position;
     vec4 v1 = gl_in[1].gl_Position;
@@ -50,5 +51,5 @@ void main(){
         if(!IsFront(v0, v1, v2)) EmitEdge(v0, v2);
         if(!IsFront(v2, v3, v4)) EmitEdge(v2, v4);
         if(!IsFront(v0, v4, v5)) EmitEdge(v4, v0);
-    } 
+    }
 }

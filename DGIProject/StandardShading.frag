@@ -21,5 +21,5 @@ void main(){
     //float fragFactor = edgeFactor.x + edgeFactor.y + edgeFactor.z;
     float fragFactor = 1.0;// - smoothstep(0.5, 1.5, minD);
 
-	color = vec4(texColor, fragFactor);
+	color = vec4(1.0, 1.0, 1.0, fragFactor);
 }

@@ -10,6 +10,12 @@ struct Vertex{
 	};
 };
 
+bool loadAssImp(
+	const char * path,
+	std::vector<unsigned short> & out_indices,
+	std::vector<Vertex> & out_vertices
+);
+
 bool loadOBJ(
 	const char * path,
 	std::vector<Vertex> & out_vertices

@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <vector>
+#include <unordered_map>
 #include <stdio.h>
 #include <string>
 #include <cstring>
@@ -8,6 +9,65 @@
 #include <glm/glm.hpp>
 
 #include "objloader.h"
+
+#include <assimp/Importer.hpp> // C++ importer interface
+#include <assimp/scene.h> // Output data structure
+#include <assimp/postprocess.h> // Post processing flags
+
+bool loadAssImp(const char * path, std::vector<unsigned short> & out_indices, std::vector<Vertex> & out_vertices){
+
+	Assimp::Importer importer;
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
+		aiComponent_NORMALS     | 
+		aiComponent_TANGENTS_AND_BITANGENTS |
+		aiComponent_COLORS      | 
+		aiComponent_TEXCOORDS   |
+		aiComponent_BONEWEIGHTS |
+		aiComponent_ANIMATIONS  |
+		aiComponent_TEXTURES    |
+		aiComponent_LIGHTS      |
+		aiComponent_MATERIALS   |
+		aiComponent_CAMERAS     );
+
+	const aiScene* scene = importer.ReadFile(path, 
+		aiProcess_RemoveComponent      |
+		aiProcess_Triangulate          |
+		aiProcess_JoinIdenticalVertices
+	);
+
+	if(!scene) {
+		fprintf(stderr, importer.GetErrorString());
+		getchar();
+		return false;
+	}
+	const aiMesh* mesh = scene->mMeshes[0]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
+
+	// Fill vertices
+	out_vertices.reserve(mesh->mNumVertices);
+	for(unsigned int i=0; i<mesh->mNumVertices; i++){
+		Vertex vert;
+		aiVector3D pos = mesh->mVertices[i];
+		vert.pos = glm::vec3(pos.x, pos.y, pos.z);
+		//aiVector3D UVW = mesh->mTextureCoords[0][i]; // Assume only 1 set of UV coords; AssImp supports 8 UV sets.
+		//vert.uv = glm::vec2(UVW.x, UVW.y);
+		//aiVector3D n = mesh->mNormals[i];
+		//vert.norm = glm::vec3(n.x, n.y, n.z);
+
+		out_vertices.push_back(vert);
+	}
+
+	// Fill face indices
+	out_indices.reserve(3*mesh->mNumFaces);
+	for(unsigned int i=0; i<mesh->mNumFaces; i++){
+		// Assume the model has only triangles.
+		out_indices.push_back(mesh->mFaces[i].mIndices[0]);
+		out_indices.push_back(mesh->mFaces[i].mIndices[1]);
+		out_indices.push_back(mesh->mFaces[i].mIndices[2]);
+	}
+
+	// The "scene" pointer will be deleted automatically by "importer"
+	return true;
+}
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide : 
@@ -194,24 +254,25 @@ void indexVBO(
 	}
 }
 
-unsigned short findAdj(std::vector<unsigned short> & in_indices, int i){
-	int nextI = (i+1)%3 + (i/3)*3;
-	for(size_t j=0; j<in_indices.size(); j++){
-		if(i != j && in_indices[i] == in_indices[j]){
-			if(in_indices[nextI] == in_indices[(j+2)%3 + (j/3)*3]){
-				return in_indices[(j+1)%3 + (j/3)*3];
-			}
-		}
-	}
-	return -1;
-}
-
 void genTrianglesAdjacency(
 	std::vector<unsigned short> & in_indices,
 	std::vector<unsigned short> & out_indices
 ){
-	for(int i=0; i<in_indices.size(); i++){
-		out_indices.push_back(in_indices[i]);
-		out_indices.push_back(findAdj(in_indices, i));
+	std::unordered_map<unsigned int, unsigned short> halfEdgeHashtable;
+	for(size_t i0=0; i0<in_indices.size(); i0++){
+		size_t i1 = (i0+1)%3 + (i0/3)*3;
+		size_t i2 = (i0+2)%3 + (i0/3)*3;
+		unsigned int he = in_indices[i0]<<16 | in_indices[i1];
+		halfEdgeHashtable[he] = in_indices[i2];
+	}
+	for(size_t i0=0; i0<in_indices.size(); i0++){
+		out_indices.push_back(in_indices[i0]);
+		size_t i1 = (i0+1)%3 + (i0/3)*3;
+		unsigned int he = in_indices[i1]<<16 | in_indices[i0];
+		auto adj = halfEdgeHashtable.find(he);
+		if(adj == halfEdgeHashtable.end())
+			out_indices.push_back(-1);
+		else
+			out_indices.push_back(adj->second);
 	}
 }

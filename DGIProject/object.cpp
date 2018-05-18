@@ -12,7 +12,7 @@ Object::Object(const char* objPath, const char* texPath){
 	vector<unsigned short> indices;
 	vector<unsigned short> adj_indices;
 	vector<Vertex> indexed_vertices;
-	bool res = loadVertOBJ(objPath, indices, indexed_vertices);
+	bool res = loadAssImp(objPath, indices, indexed_vertices);
 	//bool res = loadOBJ(objPath, vertices);
 	//indexVBO(vertices, indices, indexed_vertices);
 	genTrianglesAdjacency(indices, adj_indices);

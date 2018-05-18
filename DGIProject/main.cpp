@@ -47,7 +47,7 @@ FrameBuffer* pong = NULL;
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
 
-Uint32 deltaTime;
+Uint32 deltaTime, frame;
 
 // camera vars
 vec3 position = vec3(0, 0, 5);
@@ -59,6 +59,7 @@ int main(int argc, char* args[]){
 
 	SDL_Event e;
 	Uint32 lastTime = SDL_GetTicks();
+	frame = 0;
 	while(true){
 		Uint32 currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
@@ -75,6 +76,7 @@ int main(int argc, char* args[]){
 		SDL_GL_SwapWindow(gWindow);
 
 		lastTime = currentTime;
+		frame++;
 	}
 	return 0;
 }
@@ -113,7 +115,7 @@ void init(){
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -126,8 +128,6 @@ void init(){
 	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, true);
 	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, false);
 	pong = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, false);
-
-	SDL_WarpMouseInWindow(gWindow, SCR_WIDTH/2, SCR_HEIGHT/2);
 }
 
 void update(){
@@ -136,8 +136,10 @@ void update(){
 	SDL_WarpMouseInWindow(gWindow, SCR_WIDTH/2, SCR_HEIGHT/2);
 
 	// update camera angles
-	yaw   += float(SCR_WIDTH/2 - x)  * (float)deltaTime * mouseSpeed;
-	pitch += float(SCR_HEIGHT/2 - y) * (float)deltaTime * mouseSpeed;
+	if(frame > 1){
+		yaw   += float(SCR_WIDTH/2 - x)  * (float)deltaTime * mouseSpeed;
+		pitch += float(SCR_HEIGHT/2 - y) * (float)deltaTime * mouseSpeed;
+	}
 
 	// calculate rotation matrix
 	mat4 camRot = glm::rotate(mat4(), yaw, vec3(0, 1, 0));
