@@ -3,15 +3,23 @@
 layout(triangles_adjacency) in;
 layout(triangle_strip, max_vertices=12) out;
 
+out vec2 spinePos;
+
 void EmitEdge(vec4 P0, vec4 P1){
-	vec2 lineScreenForward = normalize(P1.xy - P0.xy);
+	vec2 lineScreenForward = normalize(P1.xy/P1.w - P0.xy/P0.w);
     vec2 lineScreenRight = vec2(-lineScreenForward.y, lineScreenForward.x);
     vec4 lineScreenOffset = vec4(vec2(3.0) / vec2(800,600) * lineScreenRight, 0, 0);
-
-    gl_Position = P0 + lineScreenOffset*P0.w; EmitVertex();
-    gl_Position = P0 - lineScreenOffset*P0.w; EmitVertex();
-    gl_Position = P1 + lineScreenOffset*P1.w; EmitVertex();
-    gl_Position = P1 - lineScreenOffset*P1.w; EmitVertex();
+	
+	vec4 P0r = P0 + lineScreenOffset*P0.w;
+	vec4 P0l = P0 - lineScreenOffset*P0.w;
+	vec4 P1r = P1 + lineScreenOffset*P1.w;
+	vec4 P1l = P1 - lineScreenOffset*P1.w;
+	spinePos = (P0l.xy/P0l.w + 1.0) * 0.5;
+    gl_Position = P0r; EmitVertex();
+    gl_Position = P0l; EmitVertex();
+	spinePos = (P1l.xy/P1l.w + 1.0) * 0.5;
+    gl_Position = P1r; EmitVertex();
+    gl_Position = P1l; EmitVertex();
     EndPrimitive();
 }
 

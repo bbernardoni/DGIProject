@@ -37,11 +37,13 @@ SDL_Window* gWindow = NULL;
 SDL_GLContext gContext;
 
 Shader* shader = NULL;
+Shader* shaderDepth = NULL;
 Shader* shaderBlur = NULL;
 Object* monkey = NULL;
 FrameBuffer* raw = NULL;
 FrameBuffer* ping = NULL;
 FrameBuffer* pong = NULL;
+FrameBuffer* depthBuf = NULL;
 
 //Graphics variables
 mat4 ViewMatrix;
@@ -113,7 +115,6 @@ void init(){
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -121,13 +122,15 @@ void init(){
 
 	// Create and compile our GLSL program from the shaders
 	shader = new Shader("StandardShading.vert", "StandardShading.geom", "StandardShading.frag");
+	shaderDepth = new Shader("StandardShading.vert", "empty.frag");
 	shaderBlur = new Shader("blur.vert", "blur.frag");
 
 	monkey = new Object("dummy_obj.obj", "uvmap.DDS");
 
-	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, true);
-	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, false);
-	pong = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, false);
+	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR|FB_DEPTH_RB);
+	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
+	pong = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
+	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
 }
 
 void update(){
@@ -199,21 +202,29 @@ void renderQuad()
 }
 
 void render(){
-	// Clear the screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	mat4 VP = ProjectionMatrix * ViewMatrix;
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glEnable(GL_DEPTH_TEST);
+	depthBuf->bind();
+	depthBuf->clear();
+	monkey->draw(shaderDepth, VP);
+
 	// draw monkey
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	//raw->bind();
 	//raw->clear();
 	const Uint8* keyState = SDL_GetKeyboardState(NULL);
 	if(keyState[SDL_SCANCODE_Z])
 		VP[1][3] += 0;
+
+	glActiveTexture(GL_TEXTURE0);
+	depthBuf->bindDepth();
 	monkey->draw(shader, VP);
 
 	// blur bright fragments with two-pass Gaussian Blur 
@@ -242,11 +253,13 @@ void render(){
 void close(){
 	delete monkey;
 	delete shader;
+	delete shaderDepth;
 	delete shaderBlur;
 
 	delete raw;
 	delete ping;
 	delete pong;
+	delete depthBuf;
 
 	//Destroy window	
 	SDL_DestroyWindow(gWindow);

@@ -55,8 +55,8 @@ void Object::draw(Shader* shader, mat4 VP){
 	shader->setUniform("MVP", MVP);
 
 	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
 	shader->setUniform("myTextureSampler", 0);
 

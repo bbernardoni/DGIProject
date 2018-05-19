@@ -38,6 +38,7 @@
   <ItemGroup>
     <None Include="blur.frag" />
     <None Include="blur.vert" />
+    <None Include="empty.frag" />
     <None Include="StandardShading.frag" />
     <None Include="StandardShading.geom" />
     <None Include="StandardShading.vert" />
