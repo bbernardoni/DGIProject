@@ -93,8 +93,8 @@ void init(){
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
 	gWindow = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(gWindow == NULL)
@@ -121,9 +121,9 @@ void init(){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Create and compile our GLSL program from the shaders
-	shader = new Shader("StandardShading.vert", "StandardShading.geom", "StandardShading.frag");
-	shaderDepth = new Shader("StandardShading.vert", "empty.frag");
-	shaderBlur = new Shader("blur.vert", "blur.frag");
+	shader = new Shader("shaders/transformStrokes.vert", "shaders/calcStrokes.geom", "shaders/strokes.frag");
+	shaderDepth = new Shader("shaders/transform.vert", "shaders/empty.frag");
+	shaderBlur = new Shader("shaders/blur.vert", "shaders/blur.frag");
 
 	monkey = new Object("dummy_obj.obj", "uvmap.DDS");
 

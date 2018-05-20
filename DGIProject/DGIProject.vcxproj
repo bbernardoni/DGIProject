@@ -36,12 +36,13 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="blur.frag" />
-    <None Include="blur.vert" />
-    <None Include="empty.frag" />
-    <None Include="StandardShading.frag" />
-    <None Include="StandardShading.geom" />
-    <None Include="StandardShading.vert" />
+    <None Include="shaders\blur.frag" />
+    <None Include="shaders\blur.vert" />
+    <None Include="shaders\calcStrokes.geom" />
+    <None Include="shaders\empty.frag" />
+    <None Include="shaders\strokes.frag" />
+    <None Include="shaders\transform.vert" />
+    <None Include="shaders\transformStrokes.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

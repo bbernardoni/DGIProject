@@ -57,22 +57,25 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="StandardShading.frag">
+    <None Include="shaders\blur.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="StandardShading.vert">
+    <None Include="shaders\blur.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="StandardShading.geom">
+    <None Include="shaders\calcStrokes.geom">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="blur.frag">
+    <None Include="shaders\empty.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="blur.vert">
+    <None Include="shaders\transform.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="empty.frag">
+    <None Include="shaders\transformStrokes.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\strokes.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
