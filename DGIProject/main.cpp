@@ -125,7 +125,7 @@ void init(){
 	shaderDepth = new Shader("shaders/transform.vert", "shaders/empty.frag");
 	shaderBlur = new Shader("shaders/blur.vert", "shaders/blur.frag");
 
-	monkey = new Object("dummy_obj.obj", "uvmap.DDS");
+	monkey = new Object("dummy_obj.obj", "uvmap.DDS"); //utah-teapot.obj //dummy_obj.obj
 
 	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR|FB_DEPTH_RB);
 	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);

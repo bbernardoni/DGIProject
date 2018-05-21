@@ -25,7 +25,7 @@ void main(){
     float depthC = texture(DepthSampler, spinePosC).r;
     float depthR = texture(DepthSampler, spinePosR).r;
 	if(depthL < gl_FragCoord.z && depthC < gl_FragCoord.z && depthR < gl_FragCoord.z)
-        discard;
-
+        discard;//color = vec4(dbg, fragFactor);//
+	else
 	color = vec4(1.0, 1.0, 1.0, fragFactor);
 }
