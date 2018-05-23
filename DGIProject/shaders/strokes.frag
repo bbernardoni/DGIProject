@@ -3,29 +3,34 @@
 // Ouput data
 out vec4 color;
 
-in vec2 spinePosL;
-in vec2 spinePosC;
-in vec2 spinePosR;
-in vec3 dbg;
+in vec2 spinePos;
+in vec2 p0Coord;
+in float len;
 
 // Values that stay constant for the whole mesh.
 uniform sampler2D DepthSampler;
 
-void main(){
-	// Material properties
-	//vec3 texColor = texture(myTextureSampler, fUV).rgb;
-	
-	//vec3 d = vBC/fwidth(vBC);
-    //float minD = min(min(d.x, d.y), d.z);
+bool depthTest(){
+	for(float i=-1.0; i<1.1; i+=1.0){
+		for(float j=-1.0; j<1.1; j+=1.0){
+			vec2 texCoord = spinePos + i*vec2(1/800.0, 0.0) + j*vec2(0.0, 1/600.0);
+			float depth = texture(DepthSampler, texCoord).r;
+			if(depth >= gl_FragCoord.z)
+				return true;
+		}
+	}
+	return false;
+}
 
-	//vec3 edgeFactor = clamp(0.8 - d/2.0, 0, 0.8);
-    //float fragFactor = edgeFactor.x + edgeFactor.y + edgeFactor.z;
-    float fragFactor = 1.0;// - smoothstep(0.5, 1.5, minD);
-    float depthL = texture(DepthSampler, spinePosL).r;
-    float depthC = texture(DepthSampler, spinePosC).r;
-    float depthR = texture(DepthSampler, spinePosR).r;
-	if(depthL < gl_FragCoord.z && depthC < gl_FragCoord.z && depthR < gl_FragCoord.z)
-        discard;//color = vec4(dbg, fragFactor);//
-	else
-	color = vec4(1.0, 1.0, 1.0, fragFactor);
+void main(){
+	if(!depthTest())
+		discard;
+
+    float fragFactor = 1.0 - abs(p0Coord.x)/8.0;
+	if(p0Coord.y < 0)
+		fragFactor = 1.0 - length(p0Coord)/8.0;
+	else if(p0Coord.y > len)
+		fragFactor = 1.0 - length(vec2(p0Coord.x, p0Coord.y-len))/8.0;
+
+	color = vec4(fragFactor, fragFactor, fragFactor, 1.0);
 }

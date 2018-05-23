@@ -112,20 +112,21 @@ void init(){
 		LOG_EXIT(Error, Failed to initialize GLAD);
 
 	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Enable depth test
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendEquation(GL_MAX);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Create and compile our GLSL program from the shaders
 	shader = new Shader("shaders/transformStrokes.vert", "shaders/calcStrokes.geom", "shaders/strokes.frag");
 	shaderDepth = new Shader("shaders/transform.vert", "shaders/empty.frag");
 	shaderBlur = new Shader("shaders/blur.vert", "shaders/blur.frag");
 
-	monkey = new Object("dummy_obj.obj", "uvmap.DDS"); //utah-teapot.obj //dummy_obj.obj
+	monkey = new Object("dummy_obj.obj", "uvmap.DDS"); //utah-teapot.obj //dummy_obj.obj // WoodenLarry.obj
 
 	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR|FB_DEPTH_RB);
 	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
@@ -240,6 +241,7 @@ void render(){
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}else{
 			outputBuf->bind();
+			outputBuf->clear();
 		}
 		shaderBlur->setUniform("horizontal", horizontal);
 		inputBuf->bindColor();

@@ -5,35 +5,32 @@ layout(triangle_strip, max_vertices=12) out;
 
 in vec3 posModel[6];
 
-out vec2 spinePosL;
-out vec2 spinePosC;
-out vec2 spinePosR;
-out vec3 dbg;
+out vec2 spinePos;
+out vec2 p0Coord;
+out float len;
+
+uniform float halfWidth = 8.0;
 
 void EmitEdge(vec4 P0, vec4 P1){
-	vec2 thickness = vec2(2.0) / vec2(800,600);
-	vec2 lineFor = normalize(P1.xy/P1.w - P0.xy/P0.w);
-    vec4 lineForOffset = vec4(thickness * lineFor, 0, 0);
-    vec2 lineRight = vec2(-lineFor.y, lineFor.x);
-    vec4 lineRightOffset = vec4(thickness * lineRight, 0, 0);
-	
-	vec4 P0R = P0 + (-lineForOffset + lineRightOffset)*P0.w;
-	vec4 P0C = P0 + (-lineForOffset)*P0.w;
-	vec4 P0L = P0 + (-lineForOffset - lineRightOffset)*P0.w;
-	vec4 P1R = P1 + ( lineForOffset + lineRightOffset)*P1.w;
-	vec4 P1C = P1 + ( lineForOffset)*P1.w;
-	vec4 P1L = P1 + ( lineForOffset - lineRightOffset)*P1.w;
-	spinePosL = (P0L.xy/P0L.w + 1.0) * 0.5;
-	spinePosC = (P0C.xy/P0C.w + 1.0) * 0.5;
-	spinePosR = (P0R.xy/P0R.w + 1.0) * 0.5;
-    gl_Position = P0R; EmitVertex();
-    gl_Position = P0L; EmitVertex();
-	spinePosL = (P1L.xy/P1L.w + 1.0) * 0.5;
-	spinePosC = (P1C.xy/P1C.w + 1.0) * 0.5;
-	spinePosR = (P1R.xy/P1R.w + 1.0) * 0.5;
-    gl_Position = P1R; EmitVertex();
-    gl_Position = P1L; EmitVertex();
-    EndPrimitive();
+	vec2 thickness = vec2(halfWidth) / vec2(800,600);
+	vec2 lineDelta = P1.xy/P1.w - P0.xy/P0.w;
+	vec2 lineFor = normalize(lineDelta);
+	vec4 lineForOffset = vec4(thickness * lineFor, 0, 0); // thickness * lineFor
+	vec2 lineRight = vec2(-lineFor.y, lineFor.x);
+	vec4 lineRightOffset = vec4(thickness * lineRight, 0, 0);
+
+	len = length(lineDelta * vec2(800,600));
+	spinePos = (P0.xy/P0.w - lineForOffset.xy + 1.0) * 0.5;
+	p0Coord = vec2( halfWidth, -halfWidth);
+	gl_Position = P0 + (-lineForOffset + lineRightOffset)*P0.w; EmitVertex();
+	p0Coord = vec2(-halfWidth, -halfWidth);
+	gl_Position = P0 + (-lineForOffset - lineRightOffset)*P0.w; EmitVertex();
+	spinePos = (P1.xy/P1.w + lineForOffset.xy + 1.0) * 0.5;
+	p0Coord = vec2( halfWidth, len+halfWidth);
+	gl_Position = P1 + ( lineForOffset + lineRightOffset)*P1.w; EmitVertex();
+	p0Coord = vec2(-halfWidth, len+halfWidth);
+	gl_Position = P1 + ( lineForOffset - lineRightOffset)*P1.w; EmitVertex();
+	EndPrimitive();
 }
 
 bool IsFront(vec4 A, vec4 B, vec4 C){
@@ -42,14 +39,6 @@ bool IsFront(vec4 A, vec4 B, vec4 C){
 
 vec3 getNorm(vec3 A, vec3 B, vec3 C){
     return normalize(cross(B - A, C - A));
-}
-
-void setDbg(bool cond1, bool cond2){
-	dbg = vec3(0.0, 0.0, 0.0);
-	if(cond1)
-		dbg.r = 1.0;
-	if(cond2)
-		dbg.g = 1.0;
 }
 
 void main(){
@@ -74,13 +63,10 @@ void main(){
 		vec3 norm1 = getNorm(posModel[0], posModel[1], posModel[2]);
 		vec3 norm2 = getNorm(posModel[2], posModel[3], posModel[4]);
 		vec3 norm3 = getNorm(posModel[4], posModel[5], posModel[0]);
-        setDbg(!IsFront(v0, v1, v2), dot(norm0, norm1) < 0.5);
         if(!IsFront(v0, v1, v2) || dot(norm0, norm1) < 0.5)
 			EmitEdge(v0, v2);
-        setDbg(!IsFront(v2, v3, v4), dot(norm0, norm2) < 0.5);
         if(!IsFront(v2, v3, v4) || dot(norm0, norm2) < 0.5)
 			EmitEdge(v2, v4);
-        setDbg(!IsFront(v4, v5, v0), dot(norm0, norm3) < 0.5);
         if(!IsFront(v4, v5, v0) || dot(norm0, norm3) < 0.5)
 			EmitEdge(v4, v0);
     }
