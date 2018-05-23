@@ -59,17 +59,12 @@ float pitch = 0.0f;
 int main(int argc, char* args[]){
 	init();
 
-	Uint32 start = SDL_GetTicks();
 	SDL_Event e;
 	Uint32 lastTime = SDL_GetTicks();
 	frame = 0;
 	while(true){
 		Uint32 currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
-		if(frame%10000 == 1000){
-			printf("%d\n", SDL_GetTicks()-start);
-			start = SDL_GetTicks();
-		}
 
 		while(SDL_PollEvent(&e) != 0){
 			if(e.type == SDL_QUIT){
