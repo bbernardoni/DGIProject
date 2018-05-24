@@ -10,6 +10,7 @@ out vec2 p0Coord;
 out float len;
 
 uniform float halfWidth = 8.0;
+uniform float proj23 = 20.0/-99.9;
 
 void EmitEdge(vec4 P0, vec4 P1){
 	vec2 thickness = vec2(halfWidth) / vec2(800,600);
@@ -18,18 +19,20 @@ void EmitEdge(vec4 P0, vec4 P1){
 	vec4 lineForOffset = vec4(thickness * lineFor, 0, 0); // thickness * lineFor
 	vec2 lineRight = vec2(-lineFor.y, lineFor.x);
 	vec4 lineRightOffset = vec4(thickness * lineRight, 0, 0);
+	vec4 zBias0 = vec4(0, 0, proj23*(1-P0.w/(P0.w+0.005)), 0);
+	vec4 zBias1 = vec4(0, 0, proj23*(1-P1.w/(P1.w+0.005)), 0);
 
 	len = length(lineDelta * vec2(800,600));
 	spinePos = (P0.xy/P0.w - lineForOffset.xy + 1.0) * 0.5;
 	p0Coord = vec2( halfWidth, -halfWidth);
-	gl_Position = P0 + (-lineForOffset + lineRightOffset)*P0.w; EmitVertex();
+	gl_Position = P0 + (-lineForOffset + lineRightOffset)*P0.w + zBias0; EmitVertex();
 	p0Coord = vec2(-halfWidth, -halfWidth);
-	gl_Position = P0 + (-lineForOffset - lineRightOffset)*P0.w; EmitVertex();
+	gl_Position = P0 + (-lineForOffset - lineRightOffset)*P0.w + zBias0; EmitVertex();
 	spinePos = (P1.xy/P1.w + lineForOffset.xy + 1.0) * 0.5;
 	p0Coord = vec2( halfWidth, len+halfWidth);
-	gl_Position = P1 + ( lineForOffset + lineRightOffset)*P1.w; EmitVertex();
+	gl_Position = P1 + ( lineForOffset + lineRightOffset)*P1.w + zBias1; EmitVertex();
 	p0Coord = vec2(-halfWidth, len+halfWidth);
-	gl_Position = P1 + ( lineForOffset - lineRightOffset)*P1.w; EmitVertex();
+	gl_Position = P1 + ( lineForOffset - lineRightOffset)*P1.w + zBias1; EmitVertex();
 	EndPrimitive();
 }
 
