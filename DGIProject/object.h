@@ -1,6 +1,5 @@
 #pragma once
 
-//#define _CRT_SECURE_NO_DEPRECATE
 #include <vector>
 #include <unordered_map>
 #include <stdio.h>
@@ -22,11 +21,6 @@ using glm::mat4;
 
 struct Vertex{
 	vec3 pos;
-	vec2 uv;
-	vec3 norm;
-	bool operator<(const Vertex that) const{
-		return memcmp((void*)this, (void*)&that, sizeof(Vertex))>0;
-	};
 };
 
 class Object{

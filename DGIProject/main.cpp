@@ -113,7 +113,7 @@ void init(){
 	glBlendEquation(GL_MAX);
 
 	// create objects
-	shader = new Shader("shaders/transformStrokes.vert", "shaders/calcStrokes.geom", "shaders/strokes.frag");
+	shader = new Shader("shaders/transformLines.vert", "shaders/calcLines.geom", "shaders/vectorLines.frag");
 	shaderDepth = new Shader("shaders/transform.vert", NULL);
 	monkey = new Object("dummy_obj.obj"); // models: utah-teapot.obj, dummy_obj.obj, WoodenLarry.obj
 										  // note if the model is changed the model matrix needs to be changed

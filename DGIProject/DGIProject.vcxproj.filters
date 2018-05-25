@@ -45,16 +45,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\calcStrokes.geom">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\transform.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\transformStrokes.vert">
+    <None Include="shaders\transformLines.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\strokes.frag">
+    <None Include="shaders\calcLines.geom">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\vectorLines.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

@@ -7,8 +7,8 @@ Object::Object(const char* assetPath){
 
 	// read the model file
 	vector<unsigned short> indices;
-	vector<Vertex> indexed_vertices;
-	loadAssImp(assetPath, indices, indexed_vertices);
+	vector<Vertex> vertices;
+	loadAssImp(assetPath, indices, vertices);
 
 	// generate adjacency data
 	vector<unsigned short> adj_indices;
@@ -18,15 +18,11 @@ Object::Object(const char* assetPath){
 	// load VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(Vertex), &indexed_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 	// setup attributes
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(5*sizeof(float)));
-	glEnableVertexAttribArray(2);
 
 	// load EBO
 	glGenBuffers(1, &EBO);
