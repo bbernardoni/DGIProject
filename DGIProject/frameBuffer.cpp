@@ -1,12 +1,13 @@
 #include "frameBuffer.h"
 
 FrameBuffer::FrameBuffer(int width, int height, int bufFlags){
+	// init FBO
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
+	// add attachments
 	flags = bufFlags;
-
-	if(flags & FB_COLOR){
+	if(flags & FB_COLOR){ // add color texture
 		glGenTextures(1, &colorBuf);
 		glBindTexture(GL_TEXTURE_2D, colorBuf);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
@@ -17,12 +18,12 @@ FrameBuffer::FrameBuffer(int width, int height, int bufFlags){
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuf, 0);
 	}
 
-	if(flags & FB_DEPTH_RB){
+	if(flags & FB_DEPTH_RB){ // add depth renderbuffer
 		glGenRenderbuffers(1, &depthBuf);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthBuf);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuf);
-	}else if(flags & FB_DEPTH_TEX){
+	}else if(flags & FB_DEPTH_TEX){ // add depth texture
 		glGenTextures(1, &depthBuf);
 		glBindTexture(GL_TEXTURE_2D, depthBuf);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -33,12 +34,12 @@ FrameBuffer::FrameBuffer(int width, int height, int bufFlags){
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuf, 0);
 	}
 
-	// finally check if framebuffer is complete
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		LOG_EXIT(Error, Framebuffer not complete);
+	// check if framebuffer is complete
+	ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, ASSERT_ABORT, ASSERT_GL);
 }
 
 FrameBuffer::~FrameBuffer(){
+	// delete everything
 	glDeleteFramebuffers(1, &FBO);
 	if(flags & FB_COLOR)
 		glDeleteTextures(1, &colorBuf);

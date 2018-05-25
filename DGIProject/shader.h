@@ -8,6 +8,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "logging.h"
+
 using std::vector;
 using glm::vec2;
 using glm::vec3;
@@ -19,8 +21,9 @@ public:
 	Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath);
 	~Shader();
 
-	void use();
+	void use(); // use shader
 
+	// set shader uniforms
 	void setUniform(const char* name, GLfloat value);
 	void setUniform(const char* name, GLint value);
 	void setUniform(const char* name, GLuint value);
@@ -30,6 +33,7 @@ public:
 private:
 	GLuint programID;
 
+	// creation helper functions
 	GLuint compileShader(const char* filePath, GLenum shaderType);
 	void linkShader();
 };

@@ -3,37 +3,59 @@
 Shader::Shader(const char* vertexPath, const char* fragmentPath){
 	programID = glCreateProgram();
 
-	GLuint vertID = compileShader(vertexPath, GL_VERTEX_SHADER);
-	GLuint fragID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-	glAttachShader(programID, vertID);
-	glAttachShader(programID, fragID);
+	GLuint vertID, fragID;
+	if(vertexPath){
+		vertID = compileShader(vertexPath, GL_VERTEX_SHADER);
+		glAttachShader(programID, vertID);
+	}
+	if(fragmentPath){
+		fragID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+		glAttachShader(programID, fragID);
+	}
 
 	linkShader();
 
-	glDetachShader(programID, vertID);
-	glDetachShader(programID, fragID);
-	glDeleteShader(vertID);
-	glDeleteShader(fragID);
+	if(vertexPath){
+		glDetachShader(programID, vertID);
+		glDeleteShader(vertID);
+	}
+	if(fragmentPath){
+		glDetachShader(programID, fragID);
+		glDeleteShader(fragID);
+	}
 }
 
 Shader::Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath){
 	programID = glCreateProgram();
 
-	GLuint vertID = compileShader(vertexPath, GL_VERTEX_SHADER);
-	GLuint geomID = compileShader(geometryPath, GL_GEOMETRY_SHADER);
-	GLuint fragID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-	glAttachShader(programID, vertID);
-	glAttachShader(programID, geomID);
-	glAttachShader(programID, fragID);
+	GLuint vertID, geomID, fragID;
+	if(vertexPath){
+		vertID = compileShader(vertexPath, GL_VERTEX_SHADER);
+		glAttachShader(programID, vertID);
+	}
+	if(geometryPath){
+		geomID = compileShader(geometryPath, GL_GEOMETRY_SHADER);
+		glAttachShader(programID, geomID);
+	}
+	if(fragmentPath){
+		fragID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+		glAttachShader(programID, fragID);
+	}
 
 	linkShader();
 
-	glDetachShader(programID, vertID);
-	glDetachShader(programID, geomID);
-	glDetachShader(programID, fragID);
-	glDeleteShader(vertID);
-	glDeleteShader(geomID);
-	glDeleteShader(fragID);
+	if(vertexPath){
+		glDetachShader(programID, vertID);
+		glDeleteShader(vertID);
+	}
+	if(geometryPath){
+		glDetachShader(programID, geomID);
+		glDeleteShader(geomID);
+	}
+	if(fragmentPath){
+		glDetachShader(programID, fragID);
+		glDeleteShader(fragID);
+	}
 }
 
 Shader::~Shader(){
@@ -63,23 +85,23 @@ void Shader::setUniform(const char* name, mat4 value){
 GLuint Shader::compileShader(const char* filePath, GLenum shaderType){
 	GLuint shaderID = glCreateShader(shaderType);
 
+	// read file
 	std::string shaderCode;
 	std::ifstream file(filePath, std::ios::in);
-	if(file.is_open()){
-		std::stringstream sstr;
-		sstr << file.rdbuf();
-		shaderCode = sstr.str();
-		file.close();
-	}
-	else{
-		// error
-	}
+	ASSERT(file.is_open(), ASSERT_ABORT, ASSERT_NO_EXT);
 
+	std::stringstream sstr;
+	sstr << file.rdbuf();
+	shaderCode = sstr.str();
+	file.close();
+
+	// compile shader
 	printf("Compiling shader: %s\n", filePath);
 	char const* sourcePointer = shaderCode.c_str();
 	glShaderSource(shaderID, 1, &sourcePointer, NULL);
 	glCompileShader(shaderID);
 
+	// read status
 	GLint status = GL_FALSE;
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
 	if(!status){
@@ -94,8 +116,10 @@ GLuint Shader::compileShader(const char* filePath, GLenum shaderType){
 }
 
 void Shader::linkShader(){
+	// link shader
 	glLinkProgram(programID);
 
+	// read status
 	GLint status = GL_FALSE;
 	glGetProgramiv(programID, GL_LINK_STATUS, &status);
 	if(!status){

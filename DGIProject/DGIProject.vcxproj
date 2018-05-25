@@ -23,23 +23,16 @@
     <ClCompile Include="frameBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
-    <ClCompile Include="objloader.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="frameBuffer.h" />
     <ClInclude Include="logging.h" />
     <ClInclude Include="object.h" />
-    <ClInclude Include="objloader.h" />
     <ClInclude Include="shader.h" />
-    <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\blur.frag" />
-    <None Include="shaders\blur.vert" />
     <None Include="shaders\calcStrokes.geom" />
-    <None Include="shaders\empty.frag" />
     <None Include="shaders\strokes.frag" />
     <None Include="shaders\transform.vert" />
     <None Include="shaders\transformStrokes.vert" />

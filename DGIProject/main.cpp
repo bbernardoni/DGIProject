@@ -36,16 +36,16 @@ void close();
 SDL_Window* gWindow = NULL;
 SDL_GLContext gContext;
 
+// graphics objects
 Shader* shader = NULL;
 Shader* shaderDepth = NULL;
-Shader* shaderBlur = NULL;
 Object* monkey = NULL;
-FrameBuffer* raw = NULL;
-FrameBuffer* ping = NULL;
-FrameBuffer* pong = NULL;
 FrameBuffer* depthBuf = NULL;
 
-//Graphics variables
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+
+// graphics matrices
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
 
@@ -85,53 +85,58 @@ int main(int argc, char* args[]){
 
 void init(){
 	// init SDL
-	if(SDL_Init(SDL_INIT_VIDEO) < 0)
-		LOG_EXIT_SDL(Error, Failed to initialize SDL subsystems);
+	ASSERT(SDL_Init(SDL_INIT_VIDEO) >= 0, ASSERT_ABORT, ASSERT_SDL);
 
 	atexit(close);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-	gWindow = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-	if(gWindow == NULL)
-		LOG_EXIT_SDL(Error, Failed to create window);
+	gWindow = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+				SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	ASSERT(gWindow != NULL, ASSERT_ABORT, ASSERT_SDL);
 
 	gContext = SDL_GL_CreateContext(gWindow);
-	if(gContext == NULL)
-		LOG_EXIT_SDL(Error, Failed to create OpenGL context);
+	ASSERT(gContext != NULL, ASSERT_ABORT, ASSERT_SDL);
 
-	if(SDL_GL_SetSwapInterval(0) < 0)
-		LOG_SDL(Warning, Unable to set VSync);
+	ASSERT(SDL_GL_SetSwapInterval(0) >= 0, ASSERT_LOG, ASSERT_SDL);
 
 	// init GLAD
-	if(!gladLoadGLLoader(SDL_GL_GetProcAddress))
-		LOG_EXIT(Error, Failed to initialize GLAD);
+	ASSERT(gladLoadGLLoader(SDL_GL_GetProcAddress), ASSERT_LOG, ASSERT_NO_EXT);
 
-	// Dark blue background
+	// init OpenGL
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-	// Enable depth test
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_MAX);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Create and compile our GLSL program from the shaders
+	// create objects
 	shader = new Shader("shaders/transformStrokes.vert", "shaders/calcStrokes.geom", "shaders/strokes.frag");
-	shaderDepth = new Shader("shaders/transform.vert", "shaders/empty.frag");
-	shaderBlur = new Shader("shaders/blur.vert", "shaders/blur.frag");
-
-	monkey = new Object("dummy_obj.obj", "uvmap.DDS"); //utah-teapot.obj //dummy_obj.obj // WoodenLarry.obj
-
-	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR|FB_DEPTH_RB);
-	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
-	pong = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
+	shaderDepth = new Shader("shaders/transform.vert", NULL);
+	monkey = new Object("dummy_obj.obj"); // models: utah-teapot.obj, dummy_obj.obj, WoodenLarry.obj
+										  // note if the model is changed the model matrix needs to be changed
 	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
+	
+	// init quad object (this should really be abstracted but it works)
+	float quadVertices[] = {
+		// positions        // texture Coords
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
+	// setup VAO
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
 void update(){
@@ -166,107 +171,48 @@ void update(){
 
 	// calculate project and view matrix
 	ProjectionMatrix = glm::perspective(fov, 4.0f / 3.0f, 0.1f, 100.0f);
-	//ProjectionMatrix = glm::ortho(-2.0f, 2.0f, -3.0f/2.0f, 3.0f/2.0f, 0.1f, 100.0f);
 	ViewMatrix = glm::translate(glm::inverse(camRot), -position);
 
+	// quit on escape
 	if(keyState[SDL_SCANCODE_ESCAPE])
 		exit(0);
 }
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-	if(quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
+void renderQuad(){
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
 }
 
 void render(){
 	mat4 VP = ProjectionMatrix * ViewMatrix;
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+	// draw depth buffer
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glEnable(GL_DEPTH_TEST);
 	depthBuf->bind();
 	depthBuf->clear();
 	monkey->draw(shaderDepth, VP);
 
-	// draw monkey
+	// draw stylized lines
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	//raw->bind();
-	//raw->clear();
-	const Uint8* keyState = SDL_GetKeyboardState(NULL);
-	if(keyState[SDL_SCANCODE_Z])
-		VP[1][3] += 0;
 
 	glActiveTexture(GL_TEXTURE0);
 	depthBuf->bindDepth();
+	shader->setUniform("DepthSampler", 0);
 	monkey->draw(shader, VP);
-
-	// blur bright fragments with two-pass Gaussian Blur 
-	/*bool horizontal = true;
-	unsigned int amount = 2;
-	shaderBlur->use();
-	shaderBlur->setUniform("image", 0);
-	FrameBuffer* inputBuf = raw;
-	FrameBuffer* outputBuf = pong;
-	for(unsigned int i = 0; i < amount; i++){
-		if(i == amount-1){
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}else{
-			outputBuf->bind();
-			outputBuf->clear();
-		}
-		shaderBlur->setUniform("horizontal", horizontal);
-		inputBuf->bindColor();
-		renderQuad();
-		horizontal = !horizontal;
-		inputBuf = horizontal? ping: pong;
-		outputBuf = horizontal? pong: ping;
-	}*/
 }
 
 void close(){
+	// deallocate objects
 	delete monkey;
 	delete shader;
 	delete shaderDepth;
-	delete shaderBlur;
-
-	delete raw;
-	delete ping;
-	delete pong;
 	delete depthBuf;
 
-	//Destroy window	
+	// shutdown SDL
 	SDL_DestroyWindow(gWindow);
-	gWindow = NULL;
-
-	//Quit SDL subsystems
 	SDL_Quit();
 }

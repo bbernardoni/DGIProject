@@ -17,13 +17,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="objloader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\..\PortablePrograms\programming\glad-3.3\src\glad.c">
@@ -37,13 +31,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="objloader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logging.h">
@@ -57,16 +45,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\blur.frag">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\blur.vert">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\calcStrokes.geom">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\empty.frag">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\transform.vert">
