@@ -38,6 +38,5 @@ private:
 	size_t numVert;
 
 	// model init helper functions
-	bool loadAssImp(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices);
-	void genTrianglesAdjacency(vector<unsigned short> & in_indices, vector<unsigned short> & out_indices);
+	bool loadModel(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices);
 };

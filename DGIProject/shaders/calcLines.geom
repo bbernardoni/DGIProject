@@ -19,13 +19,61 @@ uniform float halfWidth = 8.0;
 // but this works as long as neither the aspect ratio or fov is changed
 uniform float proj23 = 20.0/-99.9;
 
+// dot multipliers for homogeneous clippling
+vec4 clips[6] = {vec4(1,0,0,1), vec4(-1,0,0,1), vec4(0,1,0,1), vec4(0,-1,0,1), vec4(0,0,1,1), vec4(0,0,-1,1)};
+
+// outcode for Cohen-Sutherland algorithm
+int outCode(vec4 v){
+    int outcode = 0;
+    for(int i=0; i<6; i++){
+        if(dot(clips[i],v) < 0)
+			outcode |= (1 << i);
+    }
+    return outcode;
+}
+
 // emit an edge at the given coordinates
 void EmitEdge(vec4 P0, vec4 P1){
+	// clip edge
+	int ocP0 = outCode(P0);
+	int ocP1 = outCode(P1);
+	if((ocP0 & ocP1) != 0) // trivial reject
+		return;
+	int ocMask = ocP0 | ocP1;
+	if(ocMask != 0){ // clipping necessary
+		float P0alpha = 0;
+		float P1alpha = 1;
+		for(int i=0; i<6; i++){
+			if((ocMask & (1 << i)) != 0){
+				// find intersection along clip plane
+				float P0dot = dot(clips[i],P0);
+				float P1dot = dot(clips[i],P1);
+				float alpha = P0dot/(P0dot-P1dot);
+		
+				// adjust alphas
+				if((ocP0 & (1 << i)) != 0){
+					if(P0alpha < alpha) P0alpha = alpha;
+				}else{
+					if(P1alpha > alpha) P1alpha = alpha;
+				}
+		
+				if(P0alpha > P1alpha){ // line invisible
+					return;
+				}
+			}
+		}
+		// clip vertices
+		if(ocP0 != 0)
+			P0 = (1-P0alpha)*P0 + P0alpha*P1;
+		if(ocP1 != 0)
+			P1 = (1-P1alpha)*P0 + P1alpha*P1;
+	}
+
 	// calculate the line offsets
 	vec2 thickness = vec2(halfWidth) / vec2(800,600);
 	vec2 lineDelta = P1.xy/P1.w - P0.xy/P0.w;
 	vec2 lineFor = normalize(lineDelta);
-	vec4 lineForOffset = vec4(thickness * lineFor, 0, 0); // thickness * lineFor
+	vec4 lineForOffset = vec4(thickness * lineFor, 0, 0);
 	vec2 lineRight = vec2(-lineFor.y, lineFor.x);
 	vec4 lineRightOffset = vec4(thickness * lineRight, 0, 0);
 	// calculate the z bias (again a bit of a hack)
@@ -73,12 +121,12 @@ void main(){
 		vec3 norm2 = getNorm(posObj[2], posObj[3], posObj[4]);
 		vec3 norm3 = getNorm(posObj[4], posObj[5], posObj[0]);
 
-		// emit edge if it forms a silhouette or crease
-        if(!IsFront(v0, v1, v2) || dot(norm0, norm1) < 0.5)
+		// emit edge if it forms a silhouette or crease or undefined edge
+        if(!IsFront(v0, v1, v2) || dot(norm0, norm1) < 0.5 || posObj[1].x > 100000.0)
 			EmitEdge(v0, v2);
-        if(!IsFront(v2, v3, v4) || dot(norm0, norm2) < 0.5)
+        if(!IsFront(v2, v3, v4) || dot(norm0, norm2) < 0.5 || posObj[3].x > 100000.0)
 			EmitEdge(v2, v4);
-        if(!IsFront(v4, v5, v0) || dot(norm0, norm3) < 0.5)
+        if(!IsFront(v4, v5, v0) || dot(norm0, norm3) < 0.5 || posObj[5].x > 100000.0)
 			EmitEdge(v4, v0);
     }
 }

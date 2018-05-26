@@ -8,12 +8,7 @@ Object::Object(const char* assetPath){
 	// read the model file
 	vector<unsigned short> indices;
 	vector<Vertex> vertices;
-	loadAssImp(assetPath, indices, vertices);
-
-	// generate adjacency data
-	vector<unsigned short> adj_indices;
-	genTrianglesAdjacency(indices, adj_indices);
-	numVert = adj_indices.size();
+	loadModel(assetPath, indices, vertices);
 
 	// load VBO
 	glGenBuffers(1, &VBO);
@@ -27,7 +22,7 @@ Object::Object(const char* assetPath){
 	// load EBO
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, adj_indices.size() * sizeof(unsigned short), &adj_indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
 }
 
 Object::~Object(){
@@ -36,7 +31,10 @@ Object::~Object(){
 	glDeleteVertexArrays(1, &VAO);
 }
 
-bool Object::loadAssImp(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices){
+int succ = 0;
+int fail = 0;
+
+bool Object::loadModel(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices){
 	// import file
 	Assimp::Importer importer;
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
@@ -78,49 +76,61 @@ bool Object::loadAssImp(const char * path, vector<unsigned short> & indices, vec
 		vertices.push_back(vert);
 	}
 
-	// read indices
-	indices.reserve(3*mesh->mNumFaces);
-	for(unsigned int i=0; i<mesh->mNumFaces; i++){
-		indices.push_back(mesh->mFaces[i].mIndices[0]);
-		indices.push_back(mesh->mFaces[i].mIndices[1]);
-		indices.push_back(mesh->mFaces[i].mIndices[2]);
+	// generate half edge hashtable
+	unordered_map<unsigned int, unsigned short> halfEdgeHashtable;
+	for(size_t face=0; face<mesh->mNumFaces; face++){
+		for(size_t edge=0; edge<3; edge++){
+			unsigned int v0 = mesh->mFaces[face].mIndices[edge];
+			unsigned int v1 = mesh->mFaces[face].mIndices[(edge+1)%3];
+			unsigned int v2 = mesh->mFaces[face].mIndices[(edge+2)%3];
+			unsigned int he = v0<<16 | v1;
+			halfEdgeHashtable[he] = v2;
+		}
+	}
+
+	// use half edge hashtable to generate adjacency data
+	numVert = 6*mesh->mNumFaces;
+	indices.reserve(numVert);
+	unsigned int undefVert = -1;
+	for(unsigned int face=0; face<mesh->mNumFaces; face++){
+		for(unsigned int edge=0; edge<3; edge++){
+			unsigned int v0 = mesh->mFaces[face].mIndices[edge];
+			unsigned int v1 = mesh->mFaces[face].mIndices[(edge+1)%3];
+			indices.push_back(v0);
+
+			unsigned int he = v1<<16 | v0;
+			auto adj = halfEdgeHashtable.find(he);
+			if(adj == halfEdgeHashtable.end()){
+				if(undefVert == (unsigned int)-1){
+					undefVert = mesh->mNumVertices;
+					Vertex vert;
+					vert.pos = vec3(123456.0, -123456.0, 0.0);
+					vertices.push_back(vert);
+				}
+				indices.push_back(undefVert);
+				fail++;
+			}else{
+				indices.push_back(adj->second);
+				succ++;
+			}
+		}
 	}
 
 	return true;
 }
 
-void Object::genTrianglesAdjacency(vector<unsigned short> & in_indices, vector<unsigned short> & out_indices){
-	// generate half edge hashtable
-	unordered_map<unsigned int, unsigned short> halfEdgeHashtable;
-	for(size_t i0=0; i0<in_indices.size(); i0++){
-		size_t i1 = (i0+1)%3 + (i0/3)*3;
-		size_t i2 = (i0+2)%3 + (i0/3)*3;
-		unsigned int he = in_indices[i0]<<16 | in_indices[i1];
-		halfEdgeHashtable[he] = in_indices[i2];
-	}
-
-	// use half edge hashtable to generate adjacency data
-	for(size_t i0=0; i0<in_indices.size(); i0++){
-		out_indices.push_back(in_indices[i0]);
-		size_t i1 = (i0+1)%3 + (i0/3)*3;
-		unsigned int he = in_indices[i1]<<16 | in_indices[i0];
-		auto adj = halfEdgeHashtable.find(he);
-		if(adj == halfEdgeHashtable.end()){
-			out_indices.push_back(-1);
-		}
-		else{
-			out_indices.push_back(adj->second);
-		}
-	}
-}
 
 void Object::draw(Shader* shader, mat4 VP){
 	shader->use();
 
 	// set MVP matrix
-	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -88.0f, 0.0f));
-	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
-	mat4 ModelMatrix = scale * translate;
+	//mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
+	//mat4 rot = mat4(1.0f);
+	//mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.88f, 0.0f));
+	mat4 scale = glm::scale(mat4(1.0f), vec3(1/5.0f));
+	mat4 rot = glm::rotate(mat4(1.0f), 3.14159f/2.0f, vec3(0.0f, 1.0f, 0.0f));
+	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -1.0f, 1.0f));
+	mat4 ModelMatrix = translate * rot * scale;
 	mat4 MVP = VP * ModelMatrix;
 	shader->setUniform("MVP", MVP);
 
