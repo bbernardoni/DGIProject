@@ -8,7 +8,7 @@ layout(triangle_strip, max_vertices=12) out;
 in vec3 posObj[6];
 
 // spine and texture coordinates
-out vec2 spinePos;
+out vec4 spinePos;
 out vec2 p0Coord;
 out float len;
 
@@ -63,10 +63,11 @@ void EmitEdge(vec4 P0, vec4 P1){
 			}
 		}
 		// clip vertices
+		vec4 oldP0 = P0;
 		if(ocP0 != 0)
 			P0 = (1-P0alpha)*P0 + P0alpha*P1;
 		if(ocP1 != 0)
-			P1 = (1-P1alpha)*P0 + P1alpha*P1;
+			P1 = (1-P1alpha)*oldP0 + P1alpha*P1;
 	}
 
 	// calculate the line offsets
@@ -79,15 +80,15 @@ void EmitEdge(vec4 P0, vec4 P1){
 	// calculate the z bias (again a bit of a hack)
 	vec4 zBias0 = vec4(0, 0, proj23*(1-P0.w/(P0.w+0.005)), 0);
 	vec4 zBias1 = vec4(0, 0, proj23*(1-P1.w/(P1.w+0.005)), 0);
-
+	
 	// calculate final output variables
 	len = length(lineDelta * vec2(800,600));
-	spinePos = (P0.xy/P0.w - lineForOffset.xy + 1.0) * 0.5;
+	spinePos = P0 - lineForOffset*P0.w + zBias0;
 	p0Coord = vec2( halfWidth, -halfWidth);
 	gl_Position = P0 + (-lineForOffset + lineRightOffset)*P0.w + zBias0; EmitVertex();
 	p0Coord = vec2(-halfWidth, -halfWidth);
 	gl_Position = P0 + (-lineForOffset - lineRightOffset)*P0.w + zBias0; EmitVertex();
-	spinePos = (P1.xy/P1.w + lineForOffset.xy + 1.0) * 0.5;
+	spinePos = P1 + lineForOffset*P1.w + zBias1;
 	p0Coord = vec2( halfWidth, len+halfWidth);
 	gl_Position = P1 + ( lineForOffset + lineRightOffset)*P1.w + zBias1; EmitVertex();
 	p0Coord = vec2(-halfWidth, len+halfWidth);
