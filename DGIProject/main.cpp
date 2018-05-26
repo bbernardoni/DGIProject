@@ -43,9 +43,6 @@ Object* hallway = NULL;
 Object* dummy = NULL;
 FrameBuffer* depthBuf = NULL;
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-
 // graphics matrices
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
@@ -61,11 +58,16 @@ int main(int argc, char* args[]){
 	init();
 
 	SDL_Event e;
+	Uint32 timing = 0;
 	Uint32 lastTime = SDL_GetTicks();
 	frame = 0;
 	while(true){
 		Uint32 currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
+		if(frame%10000 == 1000){
+			printf("frames %d\n", currentTime-timing);
+			timing = currentTime;
+		}
 
 		while(SDL_PollEvent(&e) != 0){
 			if(e.type == SDL_QUIT){
@@ -94,7 +96,8 @@ void init(){
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	gWindow = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+	gWindow = SDL_CreateWindow("Silhouette Rendering with Vector Monitor Lines", 
+				SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 				SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	ASSERT(gWindow != NULL, ASSERT_ABORT, ASSERT_SDL);
 
@@ -130,25 +133,6 @@ void init(){
 
 	// create depth framebuffer
 	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
-	
-	// init quad object (this should really be abstracted but it works)
-	float quadVertices[] = {
-		// positions        // texture Coords
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	};
-	// setup VAO
-	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
 void update(){
@@ -188,11 +172,6 @@ void update(){
 	// quit on escape
 	if(keyState[SDL_SCANCODE_ESCAPE])
 		exit(0);
-}
-
-void renderQuad(){
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void render(){

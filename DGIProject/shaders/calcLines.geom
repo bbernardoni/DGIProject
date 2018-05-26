@@ -34,7 +34,7 @@ int outCode(vec4 v){
 
 // emit an edge at the given coordinates
 void EmitEdge(vec4 P0, vec4 P1){
-	// clip edge
+	// clip edge using Cohen-Sutherland algorithm
 	int ocP0 = outCode(P0);
 	int ocP1 = outCode(P1);
 	if((ocP0 & ocP1) != 0) // trivial reject
