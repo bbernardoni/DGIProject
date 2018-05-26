@@ -16,7 +16,7 @@ out float len;
 uniform float halfWidth = 8.0;
 // a hack to properly z bias the lines
 // we would need the perspective matrix to do this properly
-// but this works as long as neither the aspect ratio or fov is changed
+// but this works as long as neither the near or far clipping planes are changed
 uniform float proj23 = 20.0/-99.9;
 
 // dot multipliers for homogeneous clippling

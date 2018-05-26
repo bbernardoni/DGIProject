@@ -124,12 +124,9 @@ void Object::draw(Shader* shader, mat4 VP){
 	shader->use();
 
 	// set MVP matrix
-	//mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
-	//mat4 rot = mat4(1.0f);
-	//mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.88f, 0.0f));
-	mat4 scale = glm::scale(mat4(1.0f), vec3(1/5.0f));
-	mat4 rot = glm::rotate(mat4(1.0f), 3.14159f/2.0f, vec3(0.0f, 1.0f, 0.0f));
-	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -1.0f, 1.0f));
+	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
+	mat4 rot = mat4(1.0f);
+	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.88f, 0.0f));
 	mat4 ModelMatrix = translate * rot * scale;
 	mat4 MVP = VP * ModelMatrix;
 	shader->setUniform("MVP", MVP);

@@ -9,15 +9,14 @@ in vec2 p0Coord;
 in float len;
 
 // depth texture
-uniform sampler2D DepthSampler;
-vec2 dbg;
+uniform sampler2DRect DepthSampler;
 
 // custom depth test
 // samples the spine pixel and the 8 adjacent pixels
 bool depthTest(){
 	for(float i=-1.0; i<1.1; i+=1.0){
 		for(float j=-1.0; j<1.1; j+=1.0){
-			vec2 texCoord = spinePos + i*vec2(1/800.0, 0.0) + j*vec2(0.0, 1/600.0);
+			vec2 texCoord = spinePos*vec2(800,600) + vec2(i,0) + vec2(0,j);
 			float depth = texture(DepthSampler, texCoord).r;
 			if(depth >= gl_FragCoord.z)
 				return true;
@@ -36,10 +35,10 @@ float LinearizeDepth(float depth)
 
 void main(){
 	// discard if depth test fails
-	if(!depthTest())
+	if(!depthTest()){
 		discard;
-	float depth = texture(DepthSampler, spinePos).r;
-	dbg = vec2(LinearizeDepth(depth)/10, LinearizeDepth(gl_FragCoord.z)/10);
+	}
+	float depth = texture(DepthSampler, spinePos*vec2(800,600)).r;
 
 	// calculate the pixel brightness based on distance to spine
     float fragFactor = 1.0 - abs(p0Coord.x)/8.0;
@@ -49,7 +48,6 @@ void main(){
 		fragFactor = 1.0 - length(vec2(p0Coord.x, p0Coord.y-len))/8.0;
 
 	// set ouput color
-	fragFactor = 1.0;
-	vec3 rawColor = vec3(dbg, 1.0);
+	vec3 rawColor = vec3(1.0);
 	color = vec4(rawColor*fragFactor, 1.0);
 }
