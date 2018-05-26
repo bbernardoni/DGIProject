@@ -17,6 +17,7 @@ using std::vector;
 using std::unordered_map;
 using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 using glm::mat4;
 
 struct Vertex{
@@ -25,7 +26,7 @@ struct Vertex{
 
 class Object{
 public:
-	Object(const char* assetPath);
+	Object(const char* assetPath, mat4 importTrans = mat4(1.0f));
 	~Object();
 
 	void draw(Shader* shader, mat4 VP);
@@ -38,5 +39,5 @@ private:
 	size_t numVert;
 
 	// model init helper functions
-	bool loadModel(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices);
+	bool loadModel(const char * path, mat4 importTrans, vector<unsigned short> & indices, vector<Vertex> & vertices);
 };

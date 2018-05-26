@@ -39,7 +39,8 @@ SDL_GLContext gContext;
 // graphics objects
 Shader* shader = NULL;
 Shader* shaderDepth = NULL;
-Object* monkey = NULL;
+Object* hallway = NULL;
+Object* dummy = NULL;
 FrameBuffer* depthBuf = NULL;
 
 unsigned int quadVAO = 0;
@@ -112,11 +113,22 @@ void init(){
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_MAX);
 
-	// create objects
+	// create shaders
 	shader = new Shader("shaders/transformLines.vert", "shaders/calcLines.geom", "shaders/vectorLines.frag");
+	shader->setUniform("DepthSampler", 0);
 	shaderDepth = new Shader("shaders/transform.vert", NULL);
-	monkey = new Object("dummy_obj.obj"); // models: utah-teapot.obj, dummy_obj.obj, WoodenLarry.obj
-										  // note if the model is changed the model matrix needs to be changed
+
+	// create models
+	mat4 scale = glm::scale(mat4(1.0f), vec3(1/5.0f));
+	mat4 rot = glm::rotate(mat4(1.0f), 3.14159f/2.0f, vec3(0.0f, 1.0f, 0.0f));
+	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -1.0f, 1.0f));
+	hallway = new Object("Ship Hallway.lwo", translate*rot*scale);
+
+	scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
+	translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.98f, 0.0f));
+	dummy = new Object("dummy_obj.obj", translate*scale);
+
+	// create depth framebuffer
 	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
 	
 	// init quad object (this should really be abstracted but it works)
@@ -191,7 +203,8 @@ void render(){
 	glEnable(GL_DEPTH_TEST);
 	depthBuf->bind();
 	depthBuf->clear();
-	monkey->draw(shaderDepth, VP);
+	dummy->draw(shaderDepth, VP);
+	hallway->draw(shaderDepth, VP);
 
 	// draw stylized lines
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -201,13 +214,14 @@ void render(){
 
 	glActiveTexture(GL_TEXTURE0);
 	depthBuf->bindDepth();
-	shader->setUniform("DepthSampler", 0);
-	monkey->draw(shader, VP);
+	dummy->draw(shader, VP);
+	hallway->draw(shader, VP);
 }
 
 void close(){
 	// deallocate objects
-	delete monkey;
+	delete hallway;
+	delete dummy;
 	delete shader;
 	delete shaderDepth;
 	delete depthBuf;

@@ -1,6 +1,6 @@
 #include "object.h"
 
-Object::Object(const char* assetPath){
+Object::Object(const char* assetPath, mat4 importTrans){
 	// init VAO
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -8,7 +8,7 @@ Object::Object(const char* assetPath){
 	// read the model file
 	vector<unsigned short> indices;
 	vector<Vertex> vertices;
-	loadModel(assetPath, indices, vertices);
+	loadModel(assetPath, importTrans, indices, vertices);
 
 	// load VBO
 	glGenBuffers(1, &VBO);
@@ -34,7 +34,7 @@ Object::~Object(){
 int succ = 0;
 int fail = 0;
 
-bool Object::loadModel(const char * path, vector<unsigned short> & indices, vector<Vertex> & vertices){
+bool Object::loadModel(const char * path, mat4 importTrans, vector<unsigned short> & indices, vector<Vertex> & vertices){
 	// import file
 	Assimp::Importer importer;
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
@@ -71,7 +71,7 @@ bool Object::loadModel(const char * path, vector<unsigned short> & indices, vect
 	for(unsigned int i=0; i<mesh->mNumVertices; i++){
 		Vertex vert;
 		aiVector3D pos = mesh->mVertices[i];
-		vert.pos = vec3(pos.x, pos.y, pos.z);
+		vert.pos = importTrans*vec4(pos.x, pos.y, pos.z, 1.0f);
 
 		vertices.push_back(vert);
 	}
@@ -124,10 +124,7 @@ void Object::draw(Shader* shader, mat4 VP){
 	shader->use();
 
 	// set MVP matrix
-	mat4 scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
-	mat4 rot = mat4(1.0f);
-	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.88f, 0.0f));
-	mat4 ModelMatrix = translate * rot * scale;
+	mat4 ModelMatrix = mat4(1.0);
 	mat4 MVP = VP * ModelMatrix;
 	shader->setUniform("MVP", MVP);
 
