@@ -37,11 +37,17 @@ SDL_Window* gWindow = NULL;
 SDL_GLContext gContext;
 
 // graphics objects
-Shader* shader = NULL;
+Shader* shaderVector = NULL;
 Shader* shaderDepth = NULL;
+Shader* shaderBlur = NULL;
+Shader* shaderBloom = NULL;
 Object* hallway = NULL;
 Object* dummy = NULL;
+Object* screen = NULL;
 FrameBuffer* depthBuf = NULL;
+FrameBuffer* raw = NULL;
+FrameBuffer* ping = NULL;
+FrameBuffer* pong = NULL;
 
 // graphics matrices
 mat4 ViewMatrix;
@@ -112,11 +118,18 @@ void init(){
 	glBlendEquation(GL_MAX);
 
 	// create shaders
-	shader = new Shader("shaders/transformLines.vert", "shaders/calcLines.geom", "shaders/vectorLines.frag");
-	shader->setUniform("DepthSampler", 0);
 	shaderDepth = new Shader("shaders/transform.vert", NULL);
+	shaderVector = new Shader("shaders/transformLines.vert", "shaders/calcLines.geom", "shaders/vectorLines.frag");
+	shaderVector->setUniform("DepthSampler", 0);
+	shaderVector->setUniform("halfWidth", 4.0f);
+	shaderBlur = new Shader("shaders/screen.vert", "shaders/blur.frag");
+	shaderBlur->setUniform("image", 0);
+	shaderBloom = new Shader("shaders/screen.vert", "shaders/bloom.frag");
+	shaderBloom->setUniform("blur", 0);
+	shaderBloom->setUniform("scene", 1);
+	shaderBloom->setUniform("bloomFactor", 1.0f);
 
-	// create models
+	// load models
 	mat4 scale = glm::scale(mat4(1.0f), vec3(1/5.0f));
 	mat4 rot = glm::rotate(mat4(1.0f), 3.14159f/2.0f, vec3(0.0f, 1.0f, 0.0f));
 	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -1.0f, 1.0f));
@@ -126,8 +139,13 @@ void init(){
 	translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.98f, 0.0f));
 	dummy = new Object("models/dummy_obj.obj", translate*scale);
 
+	screen = new Object();
+
 	// create depth framebuffer
 	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
+	raw = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
+	ping = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
+	pong = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_COLOR);
 }
 
 void update(){
@@ -177,28 +195,57 @@ void render(){
 	glEnable(GL_DEPTH_TEST);
 	depthBuf->bind();
 	depthBuf->clear();
+
 	dummy->draw(shaderDepth, VP);
 	hallway->draw(shaderDepth, VP);
 
 	// draw stylized lines
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	raw->bind();
+	raw->clear();
+	depthBuf->bindDepth(0);
+
+	dummy->draw(shaderVector, VP);
+	hallway->draw(shaderVector, VP);
+
+	// blur lines with two-pass Gaussian Blur 	
+	bool horizontal = true;
+	FrameBuffer* inputBuf = raw;
+	FrameBuffer* outputBuf = pong;
+	for(unsigned int i = 0; i < 10; i++){
+		outputBuf->bind();
+		outputBuf->clear();
+		shaderBlur->setUniform("horizontal", horizontal);
+		inputBuf->bindColor(0);
+		screen->draw(shaderBlur);
+		horizontal = !horizontal;
+		inputBuf = horizontal? ping: pong;
+		outputBuf = horizontal? pong: ping;
+	}
+
+	// combine blur and scene to produce bloom
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	glActiveTexture(GL_TEXTURE0);
-	depthBuf->bindDepth();
-	dummy->draw(shader, VP);
-	hallway->draw(shader, VP);
+	inputBuf->bindColor(0);
+	raw->bindColor(1);
+	screen->draw(shaderBloom);
 }
 
 void close(){
 	// deallocate objects
 	delete hallway;
 	delete dummy;
-	delete shader;
+	delete shaderVector;
 	delete shaderDepth;
+	delete shaderBlur;
+	delete shaderBloom;
 	delete depthBuf;
+	delete raw;
+	delete ping;
+	delete pong;
 
 	// shutdown SDL
 	SDL_DestroyWindow(gWindow);

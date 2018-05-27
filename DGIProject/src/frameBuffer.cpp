@@ -53,11 +53,13 @@ void FrameBuffer::bind(){
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
 
-void FrameBuffer::bindColor(){
+void FrameBuffer::bindColor(unsigned int txUnit){
+	glActiveTexture(GL_TEXTURE0 + txUnit);
 	glBindTexture(GL_TEXTURE_2D, colorBuf);
 }
 
-void FrameBuffer::bindDepth(){
+void FrameBuffer::bindDepth(unsigned int txUnit){
+	glActiveTexture(GL_TEXTURE0 + txUnit);
 	glBindTexture(GL_TEXTURE_RECTANGLE, depthBuf);
 }
 

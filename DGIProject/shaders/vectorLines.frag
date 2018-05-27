@@ -1,13 +1,15 @@
 #version 330 core
 
-// ouput data
-out vec4 color;
-
 // input data
 in vec4 spinePos;
 noperspective in vec2 p0Coord;
 in float len;
 
+// ouput data
+out vec4 color;
+
+// half width of the lines
+uniform float halfWidth;
 // depth texture
 uniform sampler2DRect DepthSampler;
 
@@ -32,11 +34,11 @@ void main(){
 	}
 
 	// calculate the pixel brightness based on distance to spine
-    float fragFactor = 1.0 - abs(p0Coord.x)/8.0;
+    float fragFactor = 1.0 - abs(p0Coord.x)/halfWidth;
 	if(p0Coord.y < 0)
-		fragFactor = 1.0 - length(p0Coord)/8.0;
+		fragFactor = 1.0 - length(p0Coord)/halfWidth;
 	else if(p0Coord.y > len)
-		fragFactor = 1.0 - length(vec2(p0Coord.x, p0Coord.y-len))/8.0;
+		fragFactor = 1.0 - length(vec2(p0Coord.x, p0Coord.y-len))/halfWidth;
 
 	// set ouput color
 	vec3 rawColor = vec3(1.0);

@@ -14,33 +14,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\..\PortablePrograms\programming\glad-3.3\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="object.cpp">
+    <ClCompile Include="src\frameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="frameBuffer.cpp">
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="src\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logging.h">
+    <ClInclude Include="src\frameBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="object.h">
+    <ClInclude Include="src\logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="frameBuffer.h">
+    <ClInclude Include="src\object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -55,6 +55,15 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\vectorLines.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\screen.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\bloom.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\blur.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

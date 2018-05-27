@@ -20,19 +20,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\..\PortablePrograms\programming\glad-3.3\src\glad.c" />
-    <ClCompile Include="frameBuffer.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="object.cpp" />
-    <ClCompile Include="shader.cpp" />
+    <ClCompile Include="src\frameBuffer.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\object.cpp" />
+    <ClCompile Include="src\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="frameBuffer.h" />
-    <ClInclude Include="logging.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="shader.h" />
+    <ClInclude Include="src\frameBuffer.h" />
+    <ClInclude Include="src\logging.h" />
+    <ClInclude Include="src\object.h" />
+    <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\bloom.frag" />
+    <None Include="shaders\blur.frag" />
     <None Include="shaders\calcLines.geom" />
+    <None Include="shaders\screen.vert" />
     <None Include="shaders\vectorLines.frag" />
     <None Include="shaders\transform.vert" />
     <None Include="shaders\transformLines.vert" />

@@ -13,7 +13,7 @@ noperspective out vec2 p0Coord;
 out float len;
 
 // half width of the lines
-uniform float halfWidth = 8.0;
+uniform float halfWidth;
 // a hack to properly z bias the lines
 // we would need the perspective matrix to do this properly
 // but this works as long as neither the near or far clipping planes are changed

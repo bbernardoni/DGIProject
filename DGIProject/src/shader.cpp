@@ -23,6 +23,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath){
 		glDetachShader(programID, fragID);
 		glDeleteShader(fragID);
 	}
+
+	use();
 }
 
 Shader::Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath){
@@ -56,6 +58,8 @@ Shader::Shader(const char* vertexPath, const char* geometryPath, const char* fra
 		glDetachShader(programID, fragID);
 		glDeleteShader(fragID);
 	}
+
+	use();
 }
 
 Shader::~Shader(){

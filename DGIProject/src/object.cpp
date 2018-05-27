@@ -1,14 +1,49 @@
 #include "object.h"
 
-Object::Object(const char* assetPath, mat4 importTrans){
+// construct object to form quad covering the screen
+Object::Object(){
+	// vertices
+	float quadVertices[] = {
+		// positions        // texture Coords
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
+	unsigned short indices[] = {0, 1, 2, 3};
+	numVert = 4;
+
 	// init VAO
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
+	// load VBO
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+
+	// setup attributes
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// load EBO
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+}
+
+// construct object from model
+Object::Object(const char* assetPath, mat4 importTrans){
 	// read the model file
 	vector<unsigned short> indices;
 	vector<Vertex> vertices;
 	loadModel(assetPath, importTrans, indices, vertices);
+
+	// init VAO
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 
 	// load VBO
 	glGenBuffers(1, &VBO);
@@ -30,9 +65,6 @@ Object::~Object(){
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
 }
-
-int succ = 0;
-int fail = 0;
 
 bool Object::loadModel(const char * path, mat4 importTrans, vector<unsigned short> & indices, vector<Vertex> & vertices){
 	// import file
@@ -108,10 +140,8 @@ bool Object::loadModel(const char * path, mat4 importTrans, vector<unsigned shor
 					vertices.push_back(vert);
 				}
 				indices.push_back(undefVert);
-				fail++;
 			}else{
 				indices.push_back(adj->second);
-				succ++;
 			}
 		}
 	}
@@ -133,4 +163,14 @@ void Object::draw(Shader* shader, mat4 VP){
 
 	// Draw the triangles
 	glDrawElements(GL_TRIANGLES_ADJACENCY, numVert, GL_UNSIGNED_SHORT, (void*)0);
+}
+
+void Object::draw(Shader* shader){
+	shader->use();
+
+	// bind VAO
+	glBindVertexArray(VAO);
+
+	// Draw the triangles
+	glDrawElements(GL_TRIANGLE_STRIP, numVert, GL_UNSIGNED_SHORT, (void*)0);
 }

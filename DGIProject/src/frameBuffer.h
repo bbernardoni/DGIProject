@@ -15,8 +15,8 @@ public:
 	~FrameBuffer();
 
 	void bind(); // binds the framebuffer
-	void bindColor(); // binds the color attachment to GL_TEXTURE_2D
-	void bindDepth(); // binds the depth attachment to GL_TEXTURE_2D
+	void bindColor(unsigned int txUnit); // binds the color attachment to GL_TEXTURE_2D
+	void bindDepth(unsigned int txUnit); // binds the depth attachment to GL_TEXTURE_RECTANGLE
 	void clear(); // clears the framebuffer
 
 private:

@@ -26,10 +26,12 @@ struct Vertex{
 
 class Object{
 public:
+	Object();
 	Object(const char* assetPath, mat4 importTrans = mat4(1.0f));
 	~Object();
 
 	void draw(Shader* shader, mat4 VP);
+	void draw(Shader* shader);
 
 private:
 	GLuint VBO;
