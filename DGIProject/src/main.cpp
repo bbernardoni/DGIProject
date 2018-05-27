@@ -209,6 +209,8 @@ void render(){
 	depthBuf->clear();
 
 	dummy->draw(shaderDepth, VP);
+	//dummy->draw(shaderDepth, glm::translate(VP, vec3(1.0f, 1.0f, 0.0f)));
+	//dummy->draw(shaderDepth, glm::translate(VP, vec3(-1.0f, -1.0f, 0.0f)));
 	hallway->draw(shaderDepth, VP);
 
 	// draw stylized lines
@@ -219,13 +221,16 @@ void render(){
 	depthBuf->bindDepth(0);
 
 	dummy->draw(shaderVector, VP);
+	//dummy->draw(shaderVector, glm::translate(VP, vec3(1.0f, 1.0f, 0.0f)));
+	//dummy->draw(shaderVector, glm::translate(VP, vec3(-1.0f, -1.0f, 0.0f)));
 	hallway->draw(shaderVector, VP);
 
 	// blur lines with two-pass Gaussian Blur 	
 	bool horizontal = true;
 	FrameBuffer* inputBuf = raw;
 	FrameBuffer* outputBuf = pong;
-	for(unsigned int i = 0; i < 10; i++){
+	shaderBlur->use();
+	for(unsigned int i = 0; i < 2; i++){
 		outputBuf->bind();
 		outputBuf->clear();
 		shaderBlur->setUniform("horizontal", horizontal);
