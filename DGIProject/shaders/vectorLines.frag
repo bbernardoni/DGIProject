@@ -5,7 +5,7 @@ out vec4 color;
 
 // input data
 in vec4 spinePos;
-in vec2 p0Coord;
+noperspective in vec2 p0Coord;
 in float len;
 
 // depth texture

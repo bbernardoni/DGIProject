@@ -9,7 +9,7 @@ in vec3 posObj[6];
 
 // spine and texture coordinates
 out vec4 spinePos;
-out vec2 p0Coord;
+noperspective out vec2 p0Coord;
 out float len;
 
 // half width of the lines

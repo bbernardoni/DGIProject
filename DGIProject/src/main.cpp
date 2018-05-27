@@ -120,11 +120,11 @@ void init(){
 	mat4 scale = glm::scale(mat4(1.0f), vec3(1/5.0f));
 	mat4 rot = glm::rotate(mat4(1.0f), 3.14159f/2.0f, vec3(0.0f, 1.0f, 0.0f));
 	mat4 translate = glm::translate(mat4(1.0f), vec3(0.0f, -1.0f, 1.0f));
-	hallway = new Object("Ship Hallway.lwo", translate*rot*scale);
+	hallway = new Object("models/Ship Hallway.lwo", translate*rot*scale);
 
 	scale = glm::scale(mat4(1.0f), vec3(1.0f/100.0f));
 	translate = glm::translate(mat4(1.0f), vec3(0.0f, -0.98f, 0.0f));
-	dummy = new Object("dummy_obj.obj", translate*scale);
+	dummy = new Object("models/dummy_obj.obj", translate*scale);
 
 	// create depth framebuffer
 	depthBuf = new FrameBuffer(SCR_WIDTH, SCR_HEIGHT, FB_DEPTH_TEX);
