@@ -65,10 +65,22 @@ int main(int argc, char* args[]){
 
 	SDL_Event e;
 	Uint32 lastTime = SDL_GetTicks();
+	Uint32 startTime = 1000;
+	Uint32 startFrame = 0;
 	frame = 0;
 	while(true){
 		Uint32 currentTime = SDL_GetTicks();
+		// calculate fps
 		deltaTime = currentTime - lastTime;
+		if(frame < 100){
+			startTime = currentTime;
+			startFrame = frame;
+		}else if(currentTime - startTime > 10000){
+			printf("fps = %f, ms/frame = %f\n", (frame-startFrame)*1000.0/(currentTime - startTime),
+				(currentTime - startTime)/(double)(frame-startFrame));
+			startTime = currentTime;
+			startFrame = frame;
+		}
 
 		while(SDL_PollEvent(&e) != 0){
 			if(e.type == SDL_QUIT){
@@ -202,8 +214,6 @@ void render(){
 	// draw stylized lines
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDisable(GL_DEPTH_TEST);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glClear(GL_COLOR_BUFFER_BIT);
 	raw->bind();
 	raw->clear();
 	depthBuf->bindDepth(0);
