@@ -58,16 +58,11 @@ int main(int argc, char* args[]){
 	init();
 
 	SDL_Event e;
-	Uint32 timing = 0;
 	Uint32 lastTime = SDL_GetTicks();
 	frame = 0;
 	while(true){
 		Uint32 currentTime = SDL_GetTicks();
 		deltaTime = currentTime - lastTime;
-		if(frame%10000 == 1000){
-			printf("frames %d\n", currentTime-timing);
-			timing = currentTime;
-		}
 
 		while(SDL_PollEvent(&e) != 0){
 			if(e.type == SDL_QUIT){
