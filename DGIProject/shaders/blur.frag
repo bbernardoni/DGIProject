@@ -11,6 +11,7 @@ uniform sampler2D image;
 // direction of blur
 uniform bool horizontal;
 
+// offsets and weights for Gaussian blur
 float offset[5] = {0.0, 1.469425947, 3.429053403, 5.389603405, 7.351547277};
 float weight[5] = {0.113983509, 0.206238484, 0.138264212, 0.067308868, 0.023788921};
 

@@ -23,8 +23,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath){
 		glDetachShader(programID, fragID);
 		glDeleteShader(fragID);
 	}
-
-	use();
 }
 
 Shader::Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath){
@@ -58,8 +56,6 @@ Shader::Shader(const char* vertexPath, const char* geometryPath, const char* fra
 		glDetachShader(programID, fragID);
 		glDeleteShader(fragID);
 	}
-
-	use();
 }
 
 Shader::~Shader(){
@@ -71,18 +67,23 @@ void Shader::use(){
 }
 
 void Shader::setUniform(const char* name, GLfloat value){
+	use();
 	glUniform1f(glGetUniformLocation(programID, name), value);
 }
 void Shader::setUniform(const char* name, GLint value){
+	use();
 	glUniform1i(glGetUniformLocation(programID, name), value);
 }
 void Shader::setUniform(const char* name, GLuint value){
+	use();
 	glUniform1ui(glGetUniformLocation(programID, name), value);
 }
 void Shader::setUniform(const char* name, vec3 value){
+	use();
 	glUniform3f(glGetUniformLocation(programID, name), value.x, value.y, value.z);
 }
 void Shader::setUniform(const char* name, mat4 value){
+	use();
 	glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, &value[0][0]);
 }
 

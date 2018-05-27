@@ -53,6 +53,7 @@ FrameBuffer* pong = NULL;
 mat4 ViewMatrix;
 mat4 ProjectionMatrix;
 
+// timing vars
 Uint32 deltaTime, frame;
 
 // camera vars
@@ -229,7 +230,6 @@ void render(){
 	bool horizontal = true;
 	FrameBuffer* inputBuf = raw;
 	FrameBuffer* outputBuf = pong;
-	shaderBlur->use();
 	for(unsigned int i = 0; i < 2; i++){
 		outputBuf->bind();
 		outputBuf->clear();
@@ -253,10 +253,12 @@ void close(){
 	// deallocate objects
 	delete hallway;
 	delete dummy;
+
 	delete shaderVector;
 	delete shaderDepth;
 	delete shaderBlur;
 	delete shaderBloom;
+
 	delete depthBuf;
 	delete raw;
 	delete ping;
