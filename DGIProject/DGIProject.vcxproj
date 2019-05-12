@@ -96,8 +96,8 @@
     <LibraryPath>C:\PortablePrograms\programming\assimp-4.1.0\build\code\Debug;C:\PortablePrograms\programming\SDL2-2.0.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>C:\PortablePrograms\programming\SDL2-2.0.8\lib\x86;C:\PortablePrograms\programming\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\PortablePrograms\programming\assimp-4.1.0\include;C:\PortablePrograms\programming\SDL2-2.0.8\include;C:\PortablePrograms\programming\glm-0.9.8.5;C:\PortablePrograms\programming\glad-3.3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\PortablePrograms\programming\assimp-4.1.0\build\code\Debug;C:\PortablePrograms\programming\SDL2-2.0.8\lib\x86;C:\PortablePrograms\programming\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\PortablePrograms\programming\assimp-4.1.0\include;C:\PortablePrograms\programming\glad-3.3\include;C:\PortablePrograms\programming\glm-0.9.8.5;C:\PortablePrograms\programming\SDL2-2.0.8\include;$(IncludePath)</IncludePath>
